@@ -2,6 +2,10 @@
 const express = require("express");
 //to connect express
 const mongoose = require("mongoose");
+//connect csrf
+const csrf = require("csurf");
+//connect flash (for error messages)
+const flash = require("connect-flash");
 //
 const session = require("express-session");
 //mongo session need to connect after session
@@ -28,7 +32,6 @@ const courseRoutes = require("./routes/courses");
 const ordersRoutes = require("./routes/orders");
 const authRoutes = require("./routes/auth");
 //require user model
-const User = require("./models/user");
 
 const MONGODB_URI = `mongodb+srv://Garo:Aa123456@cluster0.mrwlh1v.mongodb.net/shop`;
 
@@ -65,6 +68,14 @@ app.use(
     store,
   })
 );
+
+//add csrf
+app.use(csrf());
+
+//add flash
+
+app.use(flash());
+
 //connect middlewares
 
 app.use(varMiddleware);
