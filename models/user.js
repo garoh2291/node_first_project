@@ -5,11 +5,12 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  name: {
+  password: {
     type: String,
     required: true,
   },
-  password: String,
+  name: String,
+  avatarUrl: String,
   cart: {
     items: [
       {

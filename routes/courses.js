@@ -1,16 +1,19 @@
 const { Router } = require("express");
 const Course = require("../models/course");
+const { validationResult } = require("express-validator");
+const { courseValidators } = require("../utils/validators");
 const auth = require("../middleware/auth");
 
 const router = Router();
 
+function isOwner(course, req) {
+  return course.userId.toString() === req.user._id.toString();
+}
+
 router.get("/", async (req, res) => {
-  // const courses = await Course.find()
   const courses = await Course.find()
     .populate("userId", "email name")
     .select("price title img");
-
-  // console.log(courses);
 
   res.render("courses", {
     title: "Courses",
@@ -24,19 +27,44 @@ router.get("/:id/edit", auth, async (req, res) => {
     return res.redirect("/");
   }
 
-  const course = await Course.findById(req.params.id);
+  try {
+    const course = await Course.findById(req.params.id);
 
-  res.render("course-edit", {
-    title: `Change course ${course.title}`,
-    course,
-  });
+    if (!isOwner(course, req)) {
+      return res.redirect("/courses");
+    }
+
+    res.render("course-edit", {
+      title: `Change course ${course.title}`,
+      course,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 });
 
-router.post("/edit", auth, async (req, res) => {
+router.post("/edit", auth, courseValidators, async (req, res) => {
+  const errors = validationResult(req);
+
   const { id } = req.body;
-  delete req.body.id;
-  await Course.findByIdAndUpdate(id, req.body);
-  res.redirect("/courses");
+
+  if (!errors.isEmpty()) {
+    return res.status(422).redirect(`/courses/${id}/edit?allow=true`);
+  }
+
+  try {
+    delete req.body.id;
+    const course = await Course.findById(id);
+    if (!isOwner(course, req)) {
+      return res.redirect("/courses");
+    }
+
+    Object.assign(course, req.body);
+    await course.save();
+    res.redirect("/courses");
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 router.post("/remove", auth, async (req, res) => {

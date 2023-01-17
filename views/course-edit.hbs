@@ -1,5 +1,9 @@
 <h1>Cahnge course {{course.title}}</h1>
 
+{{#if error}}
+  <p class="alert">{{error}}</p>
+{{/if}}
+
 <form action="/courses/edit" method="post">
   <div class="input-field">
     <input

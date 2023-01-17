@@ -2,6 +2,8 @@
 const express = require("express");
 //to connect express
 const mongoose = require("mongoose");
+//helmet for header
+const helmet = require("helmet");
 //connect csrf
 const csrf = require("csurf");
 //connect flash (for error messages)
@@ -23,6 +25,8 @@ const path = require("path");
 //middlewares
 const varMiddleware = require("./middleware/variables");
 const userMiddleware = require("./middleware/user");
+const errorHandler = require("./middleware/error");
+const fileMiddleware = require("./middleware/file");
 
 //require routes
 const homeRoutes = require("./routes/home");
@@ -31,6 +35,8 @@ const addRoutes = require("./routes/add");
 const courseRoutes = require("./routes/courses");
 const ordersRoutes = require("./routes/orders");
 const authRoutes = require("./routes/auth");
+const profileRoutes = require("./routes/profile");
+
 //require user model
 
 const MONGODB_URI = `mongodb+srv://Garo:Aa123456@cluster0.mrwlh1v.mongodb.net/shop`;
@@ -56,6 +62,7 @@ app.set("views", "views");
 
 //for public folder , where will be styles and additional scripts
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -69,6 +76,9 @@ app.use(
   })
 );
 
+//file validation
+app.use(fileMiddleware.single("avatar"));
+
 //add csrf
 app.use(csrf());
 
@@ -77,7 +87,13 @@ app.use(csrf());
 app.use(flash());
 
 //connect middlewares
-
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    // frameguard: { action: "SAMEORIGIN" },
+  })
+);
 app.use(varMiddleware);
 app.use(userMiddleware);
 
@@ -93,6 +109,10 @@ app.use("/card", cardRoutes);
 app.use("/orders", ordersRoutes);
 
 app.use("/auth", authRoutes);
+
+app.use("/profile", profileRoutes);
+
+app.use(errorHandler);
 
 //application port
 const PORT = process.env.PORT || "3050";
