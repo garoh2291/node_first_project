@@ -29,7 +29,6 @@ const errorHandler = require("./middleware/error");
 const fileMiddleware = require("./middleware/file");
 
 //require routes
-
 const routes = require("./routes/index");
 
 //keys
@@ -38,7 +37,7 @@ const keys = require("./config/index");
 //Call express
 const app = express();
 
-//call mongo session store
+//Create mongo session store
 const store = new MongoStore({
   collection: "sessions",
   uri: keys.MONGODB_URI,
