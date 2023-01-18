@@ -71,6 +71,13 @@ class CousesController {
     });
   };
 
+  createSingleRender = (req, res) => {
+    res.render("add", {
+      title: "Add new product",
+      isAdd: true,
+    });
+  };
+
   createSingle = async (req, res) => {
     const errors = validationResult(req);
 

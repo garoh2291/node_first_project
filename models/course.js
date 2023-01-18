@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 
+//courses schema describes courses fields and methods
 const courseSchema = new Schema({
   title: {
     type: String,

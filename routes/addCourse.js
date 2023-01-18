@@ -5,13 +5,10 @@ const courseConroller = require("../controllers/courses.controller");
 
 const router = Router();
 
-router.get("/", auth, (req, res) => {
-  res.render("add", {
-    title: "Add new product",
-    isAdd: true,
-  });
-});
+//render Add new course page
+router.get("/", auth, courseConroller.createSingleRender);
 
+//create new course
 router.post("/", auth, courseValidators, courseConroller.createSingle);
 
 module.exports = router;
