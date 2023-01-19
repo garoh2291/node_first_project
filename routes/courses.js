@@ -1,43 +1,22 @@
 const { Router } = require("express");
-const Course = require("../models/course");
-
+const { courseValidators } = require("../utils/validators");
+const auth = require("../middleware/auth");
+const coursesController = require("../controllers/courses.controller");
 const router = Router();
 
-router.get("/", async (req, res) => {
-  const courses = await Course.getAll();
-  res.json(courses);
-  res.render("courses", {
-    title: "Courses",
-    isCourses: true,
-    courses,
-  });
-});
+//get all courses and render
+router.get("/", coursesController.getBatch);
 
-router.get("/:id/edit", async (req, res) => {
-  if (!req.query.allow) {
-    return res.redirect("/");
-  }
+//get one course and render edit page of it
+router.get("/:id/edit", auth, coursesController.getSingleChange);
 
-  const course = await Course.getById(req.params.id);
+//edit single course
+router.post("/edit", auth, courseValidators, coursesController.editSingle);
 
-  res.render("course-edit", {
-    title: `Change course ${course.title}`,
-    course,
-  });
-});
+//delete single course
+router.post("/remove", auth, coursesController.deleteSingle);
 
-router.post("/edit", async (req, res) => {
-  await Course.update(req.body);
-  res.redirect("/courses");
-});
-
-router.get("/:id", async (req, res) => {
-  const course = await Course.getById(req.params.id);
-  res.render("course", {
-    layout: "empty",
-    title: `Course ${course.title}`,
-    course: course,
-  });
-});
+//get single course and render page
+router.get("/:id", coursesController.getSingle);
 
 module.exports = router;
